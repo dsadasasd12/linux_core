@@ -1,10 +1,10 @@
 ENTRY(stext)
 	bl	preserve_boot_args
-	bl	el2_setup			// Drop to EL1, w0=cpu_boot_mode      处理器的异常级别 （虚拟化宿主扩展）
+	bl	el2_setup			// Drop to EL1, w0=cpu_boot_mode      处理器的异常级别 （虚拟化宿主扩展）  选择异常一还是异常二进行跳转 如果支持虚拟化扩展就异常二。
 	adrp	x23, __PHYS_OFFSET
 	and	x23, x23, MIN_KIMG_ALIGN - 1	// KASLR offset, defaults to 0
 	bl	set_cpu_boot_mode_flag
-	bl	__create_page_tables
+	bl	__create_page_tables            //创建恒等映射，为内核镜像创建映像
 	/*
 	 * The following calls CPU setup code, see arch/arm64/mm/proc.S for
 	 * details.
@@ -12,5 +12,5 @@ ENTRY(stext)
 	 * the TCR will have been set.
 	 */
 	bl	__cpu_setup			// initialise processor
-	b	__primary_switch
+	b	__primary_switch                // 开启内存单元，
 ENDPROC(stext)s
