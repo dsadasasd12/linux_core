@@ -1,0 +1,16 @@
+ENTRY(stext)
+	bl	preserve_boot_args
+	bl	el2_setup			// Drop to EL1, w0=cpu_boot_mode      处理器的异常级别 （虚拟化宿主扩展）
+	adrp	x23, __PHYS_OFFSET
+	and	x23, x23, MIN_KIMG_ALIGN - 1	// KASLR offset, defaults to 0
+	bl	set_cpu_boot_mode_flag
+	bl	__create_page_tables
+	/*
+	 * The following calls CPU setup code, see arch/arm64/mm/proc.S for
+	 * details.
+	 * On return, the CPU will be ready for the MMU to be turned on and
+	 * the TCR will have been set.
+	 */
+	bl	__cpu_setup			// initialise processor
+	b	__primary_switch
+ENDPROC(stext)s
